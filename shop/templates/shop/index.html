@@ -1,32 +1,68 @@
-{% extends 'shop/base.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop</title>
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"> -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</head>
 </head>
 <body>
-    {% block body %}
     <div class="container">
-        <div class="row m-3">
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
-                <button class="btn btn-success" type="submit">Search</button>
-            </form>
+
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                    <div class="container-fluid">
+                      <a class="navbar-brand" href="#">eshop</a>
+                      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                      </button>
+                      <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                          <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                          </li>
+                          <li class="nav-item">
+                            <button id="cart" data-html="true" type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Vivamus
+                            sagittis lacus vel augue laoreet rutrum faucibus.">
+                              Cart
+                            </button>
+                        </li>
+                        </ul>
+                      </div>
+                    </div>
+                </nav>
+            </div>
         </div>
+
+        <div class="row m-3">
+            <div class="col-md-12">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                    <button class="btn btn-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+
         <div class="row">
             {% for item in items %}
             <div class="col-md-3 mb-3">
                 <div class="card">
                     <img src="{{ item.image }}" class="card-img-top" alt="">
                     <div class="card-body">
-                        <h4 class="card-title">{{ item.title }}</h4>
-                        <h5 class="card-text">₹{{ item.price }}</h5>
+                        <h4 id="nm{{ item.id }}" class="card-title">{{ item.title }}</h4>
+                        <h5 id="price{‌{ item.id }}" class="card-text">₹{{ item.price }}</h5>
                         <p class="card-text">{{ item.description }}</p>
-                        <a href="{% url 'detail' item.id %}" class="btn btn-warning">View</a>
-                        <button class="btn btn-warning">Add to Cart</button>
+                        <!-- <a href="{% url 'detail' item.id %}" class="btn btn-warning">View</a> -->
+                        <a href="/{{ item.id }}" class="btn btn-warning">View</a>
+                        <button id="{‌{item.id}}" class="btn btn-warning">Add to Cart</button>
 
                     </div>
 
@@ -35,6 +71,7 @@
             </div>
             {% endfor %}
         </div>
+        
         <div class="row">
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
@@ -57,6 +94,57 @@
             </nav>
         </div>
     </div>
-    {% endblock %}
+
 </body>
+<script type="text/javascript">
+    console.log('This code is working');
+    if(localStorage.getItem('cart')==null){
+        var cart = {};
+    }
+    else{
+        cart = JSON.parse(localStorage.getItem('cart'));
+    }
+
+    $(document).on('click','.atc',function(){
+        console.log("Add to cart button is clicked");
+        var item_id = this.id.toString();
+        console.log(item_id);
+ 
+        if(cart[item_id]!=undefined){
+            quantity = cart[item_id][0] + 1;
+            cart[item_id][0] = quantity;
+            cart[item_id][2] = cart[item_id][2] + parseFloat(document.getElementById("price"+item_id).innerHTML);
+ 
+ 
+        }
+        else{
+            quantity = 1;
+            price = parseFloat(document.getElementById("price"+item_id).innerHTML);
+            name = document.getElementById("nm"+item_id).innerHTML;
+            cart[item_id]=[quantity,name,price];
+ 
+            
+        }
+        console.log(cart);
+        localStorage.setItem('cart',JSON.stringify(cart));
+        document.getElementById("cart").innerHTML = "Cart("+ Object.keys(cart).length +")";
+       
+    });
+
+    DisplayCart(cart);
+    function DisplayCart(cart){
+        var cartString ="";
+        cartString += "<h5>This is your cart</h5>";
+        var cartIndex = 1;
+        for(var x in cart){
+            cartString += cartIndex;
+            cartString += document.getElementById("nm"+x).innerHTML + "Qty:" + cart[x][0] + "</br>";
+            cartIndex+=1;
+        }
+ 
+        cartString += "<a href='/checkout'><button class='btn btn-warning' id='checkout'>Checkout</button></a>";
+        document.getElementById("cart").setAttribute('data-content',cartString);
+        $('[data-toggle="popover"]').popover;
+    }
+</script>
 </html>
